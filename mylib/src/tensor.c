@@ -56,10 +56,15 @@ void free_tensor(Tensor* t, bool deep)
 
 void _free_tensor(Tensor* t)
 {
-    if (t->parents == NULL)
+    TopoList* topo = build_topo(t);
+    TopoNode* cur = topo->head;
+    while (cur != NULL)
     {
-        free_tensor(t, true);
+        
+        free_tensor(cur->cur, false);
+        cur = cur->next;
     }
+    del_topo(topo);
 }
 
 ParentSet* get_parents(Tensor* t) 

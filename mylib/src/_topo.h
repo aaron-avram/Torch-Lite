@@ -22,5 +22,6 @@ void topo_add(TopoList* topo, Tensor* t);
 Tensor* topo_pop(TopoList* topo);
 bool topo_empty(TopoList* topo);
 TopoList* build_topo(Tensor* t);
+void del_topo(TopoList* topo);
 
 #endif

@@ -100,3 +100,23 @@ void _build_topo(Tensor* t, TopoList* topo)
     }
     topo_add(topo, t);
 }
+
+void del_topo(TopoList* topo)
+{
+    if (topo != NULL)
+    {
+        _del_next(topo->head);
+    }
+}
+
+void _del_next(TopoNode* node)
+{
+    TopoNode* cur = node;
+    TopoNode* temp = NULL;
+    while (cur != NULL)
+    {
+        temp = cur->next;
+        free(cur); // Only free container
+        cur = temp;
+    }
+}
