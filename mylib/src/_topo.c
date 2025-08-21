@@ -51,31 +51,52 @@ bool topo_empty(TopoList* topo)
 }
 
 TopoList* build_topo(Tensor* t) {
-    TopoList* topo = malloc(sizeof(TopoList));
-    _build_topo(t, topo);
+    _topo_reset_tensor(t); // hard reset visited flags
+    TopoList* topo = malloc(sizeof(TopoList)); // Initialize topo
+    _build_topo(t, topo); // build topo
 
     return topo;
+}
+
+void _topo_reset_tensor(Tensor* t)
+{
+    if (t != NULL)
+    {
+        set_visited(t, false);
+        ParentSet* parents = get_parents(t);
+        if (parents != NULL) {
+
+            Tensor* parent1 = parents->parent1;
+            Tensor* parent2 = parents->parent2;
+            if (parent1 != NULL)
+            {
+                _topo_reset_tensor(t);
+            }
+
+            if (parent2 != NULL) {
+                _topo_reset_tensor(t);
+            }
+        }
+    }
 }
 
 void _build_topo(Tensor* t, TopoList* topo)
 {
     ParentSet* parents = get_parents(t);
+    set_visited(t, true);
 
-    if (parents == NULL || (parents->parent1 == NULL && parents->parent2 == NULL))
+    if (parents != NULL)
     {
-        topo_add(topo, t);
-    }
+        Tensor* parent1 = parents->parent1;
+        Tensor* parent2 = parents->parent2;
+        if (parent1 != NULL && is_visited(parent1) == false)
+        {
+            _build_topo(parent1, topo);
+        }
 
-    else
-    {
-       if (parents->parent1 != NULL)
-       {
-            _build_topo(parents->parent1, topo);
-       }
-
-       if (parents->parent2 != NULL)
-       {
-            _build_topo(parents->parent2, topo);
-       }
+        if (parent2 != NULL && is_visited(parent2) == false) {
+            _build_topo(parent2, topo);
+        }
     }
+    topo_add(topo, t);
 }

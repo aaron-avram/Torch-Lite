@@ -14,6 +14,7 @@ struct Tensor
     enum TensorKind kind;
     ParentSet* parents;
     enum TensorOp op;
+    bool visited;
 };
 
 int main()
@@ -61,8 +62,19 @@ void _free_tensor(Tensor* t)
     }
 }
 
-ParentSet* get_parents(Tensor* t) {
+ParentSet* get_parents(Tensor* t) 
+{
     return t->parents;
+}
+
+bool is_visited(Tensor* t)
+{
+    return t->visited;
+}
+
+void set_visited(Tensor* t, bool v)
+{
+    t->visited = v;
 }
 
 

@@ -77,6 +77,16 @@ void free_tensor(Tensor* t, bool deep);
 ParentSet* get_parents(Tensor* t);
 
 /**
+ * Return if a tensor is visited in a topo sort
+ */
+bool is_visited(Tensor* t);
+
+/**
+ * Set a tensor's visited state
+ */
+void set_visited(Tensor* t, bool v);
+
+/**
  * Add two tensors to create a new one
  * Return the Tensor
  */
