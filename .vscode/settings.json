@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "tensor.h": "c",
+        "_topo.h": "c"
+    }
+}

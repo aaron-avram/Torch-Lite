@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "_parent.h"
+#include "_topo.h"
 
 
 struct Tensor
@@ -48,9 +49,23 @@ void free_tensor(Tensor* t, bool deep)
 
     else
     {
-
+        _free_tensor(t);
     }
 }
+
+void _free_tensor(Tensor* t)
+{
+    if (t->parents == NULL)
+    {
+        free_tensor(t, true);
+    }
+}
+
+ParentSet* get_parents(Tensor* t) {
+    return t->parents;
+}
+
+
 
 // ASSUMING ONLY DOUBLES
 Tensor* add(Tensor* t1, Tensor* t2) 
@@ -75,67 +90,3 @@ Tensor* add(Tensor* t1, Tensor* t2)
     return out;
 
 }
-
-// ------------------------------------------------------
-
-/**
-Topological sort helper structs and functions
-*/
-
-typedef struct TopoNode
-{
-    Tensor* cur;
-    TopoNode* next;
-} TopoNode;
-
-typedef struct TopoList
-{
-    TopoNode* head;
-} TopoList;
-
-void topo_add(TopoList* topo, Tensor* t)
-{
-    TopoNode* new = malloc(sizeof(TopoNode));
-    new->cur = t;
-
-    // Handle NULL case
-    if (topo == NULL)
-    {
-        topo = malloc(sizeof(TopoList*));
-    }
-
-    // Handle empty case
-    if (topo->head == NULL)
-    {
-        topo->head = new;
-    }
-
-    else
-    {
-        new->next = malloc(sizeof(TopoNode));
-        new->next = &(topo->head);
-        topo->head = new;
-    }
-}
-
-Tensor* topo_pop(TopoList* topo)
-{
-    // Handle NULL and empty cases
-    if (topo == NULL || topo->head == NULL)
-    {
-        return NULL;
-    }
-
-    else
-    {
-        Tensor* out = topo->head->cur;
-        topo->head = topo->head->next;
-        return out;
-    }
-}
-
-bool topo_empty(TopoList* topo) 
-{
-    return topo == NULL || topo->head == NULL;
-}
-

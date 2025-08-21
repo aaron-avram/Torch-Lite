@@ -66,6 +66,17 @@ typedef enum {
 Tensor* tensor_scalar(void* value, bool requires_grad, enum TensorScalar dtype);
 
 /**
+ * Free tensor
+ * If deep then free children as well
+ */
+void free_tensor(Tensor* t, bool deep);
+
+/**
+ * Return a tensor's direct parents
+ */
+ParentSet* get_parents(Tensor* t);
+
+/**
  * Add two tensors to create a new one
  * Return the Tensor
  */
