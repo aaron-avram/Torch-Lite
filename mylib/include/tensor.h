@@ -72,6 +72,11 @@ Tensor* tensor_scalar(void* value, bool requires_grad, enum TensorScalar dtype);
 void free_tensor(Tensor* t, bool deep);
 
 /**
+ * Return the tensors data
+ */
+void* get_data(Tensor* t);
+
+/**
  * Return a tensor's direct parents
  */
 ParentSet* get_parents(Tensor* t);

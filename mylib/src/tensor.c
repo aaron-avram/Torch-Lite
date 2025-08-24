@@ -38,6 +38,8 @@ Tensor* tensor_scalar(void* value, bool requires_grad, enum TensorScalar dtype)
 
 void free_tensor(Tensor* t, bool deep) 
 {
+    if (!t) return;
+
     if (deep == false)
     {
         if (t->grad != NULL)
@@ -65,6 +67,11 @@ void _free_tensor(Tensor* t)
         cur = cur->next;
     }
     del_topo(topo);
+}
+
+void* get_data(Tensor* t)
+{
+    return t->value;
 }
 
 ParentSet* get_parents(Tensor* t) 
