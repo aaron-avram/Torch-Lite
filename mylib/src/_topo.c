@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include<stdlib.h>
 #include <tensor.h>
 #include "_parent.h"
 #include "_topo.h"
@@ -12,19 +13,20 @@ void topo_add(TopoList* topo, Tensor* t)
     // Handle NULL case
     if (topo == NULL)
     {
-        topo = malloc(sizeof(TopoList*));
+        topo = malloc(sizeof(TopoList));
     }
 
     // Handle empty case
     if (topo->head == NULL)
     {
         topo->head = new;
+        new->next = NULL;
     }
 
     else
     {
         new->next = malloc(sizeof(TopoNode));
-        new->next = &(topo->head);
+        new->next = topo->head;
         topo->head = new;
     }
 }
@@ -50,36 +52,6 @@ bool topo_empty(TopoList* topo)
     return topo == NULL || topo->head == NULL;
 }
 
-TopoList* build_topo(Tensor* t) {
-    _topo_reset_tensor(t); // hard reset visited flags
-    TopoList* topo = malloc(sizeof(TopoList)); // Initialize topo
-    _build_topo(t, topo); // build topo
-
-    return topo;
-}
-
-void _topo_reset_tensor(Tensor* t)
-{
-    if (t != NULL)
-    {
-        set_visited(t, false);
-        ParentSet* parents = get_parents(t);
-        if (parents != NULL) {
-
-            Tensor* parent1 = parents->parent1;
-            Tensor* parent2 = parents->parent2;
-            if (parent1 != NULL)
-            {
-                _topo_reset_tensor(t);
-            }
-
-            if (parent2 != NULL) {
-                _topo_reset_tensor(t);
-            }
-        }
-    }
-}
-
 void _build_topo(Tensor* t, TopoList* topo)
 {
     ParentSet* parents = get_parents(t);
@@ -101,12 +73,35 @@ void _build_topo(Tensor* t, TopoList* topo)
     topo_add(topo, t);
 }
 
-void del_topo(TopoList* topo)
+void _topo_reset_tensor(Tensor* t)
 {
-    if (topo != NULL)
+    if (t != NULL)
     {
-        _del_next(topo->head);
+        set_visited(t, false);
+        ParentSet* parents = get_parents(t);
+        if (parents != NULL) {
+
+            Tensor* parent1 = parents->parent1;
+            Tensor* parent2 = parents->parent2;
+            if (parent1 != NULL)
+            {
+                _topo_reset_tensor(parent1);
+            }
+
+            if (parent2 != NULL) {
+                _topo_reset_tensor(parent2);
+            }
+        }
     }
+}
+
+TopoList* build_topo(Tensor* t) {
+    _topo_reset_tensor(t); // hard reset visited flags
+    TopoList* topo = malloc(sizeof(TopoList)); // Initialize topo
+    topo->head = NULL;
+    _build_topo(t, topo); // build topo
+
+    return topo;
 }
 
 void _del_next(TopoNode* node)
@@ -118,5 +113,13 @@ void _del_next(TopoNode* node)
         temp = cur->next;
         free(cur); // Only free container
         cur = temp;
+    }
+}
+
+void del_topo(TopoList* topo)
+{
+    if (topo != NULL)
+    {
+        _del_next(topo->head);
     }
 }

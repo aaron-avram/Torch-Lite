@@ -77,11 +77,6 @@ void free_tensor(Tensor* t, bool deep);
 void* get_data(Tensor* t);
 
 /**
- * Return a tensor's direct parents
- */
-ParentSet* get_parents(Tensor* t);
-
-/**
  * Return if a tensor is visited in a topo sort
  */
 bool is_visited(Tensor* t);

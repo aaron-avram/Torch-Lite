@@ -2,7 +2,8 @@
 Topological sort helper structs and functions
 */
 
-#include <tensor.h>;
+#include <tensor.h>
+#include "tensor_internal.h"
 
 #ifndef TOPO_H
 #define TOPO_H
@@ -10,7 +11,7 @@ Topological sort helper structs and functions
 typedef struct TopoNode
 {
     Tensor* cur;
-    TopoNode* next;
+    struct TopoNode* next;
 } TopoNode;
 
 typedef struct TopoList

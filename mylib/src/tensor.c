@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include "_parent.h"
 #include "_topo.h"
+#include "tensor_internal.h"
 
+void _free_tensor(Tensor* t);
 
 struct Tensor
 {
@@ -17,14 +19,10 @@ struct Tensor
     bool visited;
 };
 
-int main()
-{
-    return 0;    
-}
-
 Tensor* tensor_scalar(void* value, bool requires_grad, enum TensorScalar dtype)
 {
     Tensor* t = malloc(sizeof(Tensor));
+    t->value = value;
     if (requires_grad == true)
     {
         t->grad = malloc(sizeof(void));
@@ -42,12 +40,24 @@ void free_tensor(Tensor* t, bool deep)
 
     if (deep == false)
     {
-        if (t->grad != NULL)
+        if (t->grad)
         {
             free(t->grad);
+            t->grad = NULL;
         }
-        free(t->value);
-        free(t->parents);
+        
+        if (t->value)
+        {
+            free(t->value);
+            t->value = NULL;
+        }
+
+        if (t->parents)
+        {
+            free(t->parents);
+            t->parents = NULL;
+        }
+        free(t);
     }
 
     else
@@ -56,18 +66,27 @@ void free_tensor(Tensor* t, bool deep)
     }
 }
 
-void _free_tensor(Tensor* t)
-{
-    TopoList* topo = build_topo(t);
-    TopoNode* cur = topo->head;
-    while (cur != NULL)
-    {
-        
-        free_tensor(cur->cur, false);
-        cur = cur->next;
+void _free_tensor(Tensor *t) {
+    TopoList *topo = build_topo(t);
+
+    // Phase 1: collect into an array
+    size_t count = 0;
+    
+    Tensor **nodes = malloc(count * sizeof(Tensor*));
+    size_t i = 0;
+    for (TopoNode *cur = topo->head; cur; cur = cur->next) {
+        nodes[i++] = cur->cur;
     }
+
+    // Phase 2: free each tensor
+    for (i = 0; i < count; i++) {
+        free_tensor(nodes[i], false);
+    }
+
+    free(nodes);
     del_topo(topo);
 }
+
 
 void* get_data(Tensor* t)
 {

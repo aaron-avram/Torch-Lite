@@ -1,16 +1,16 @@
-#include "tensor.h"
+#include <tensor.h>
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // Test creating a scalar
 void test_tensor_create_scalar() {
     double* val = malloc(sizeof(double));
     *val = 42.0;
-    Tensor *t = tensor_create(val, true, DOUBLE); 
-    double *data = tensor_get_data(t);
+    Tensor *t = tensor_scalar(val, true, DOUBLE); 
+    double *data = (double*) get_data(t);
     assert(*data == *val);
-    tensor_free(t);
-    free(val);
+    free_tensor(t, true);
     printf("test_tensor_create_scalar passed!\n");
 }
 
@@ -24,17 +24,14 @@ void test_tensor_add_scalar() {
     Tensor *a = tensor_scalar(val1, true, DOUBLE);
     Tensor *b = tensor_scalar(val2, true, DOUBLE);
 
-    Tensor *c = tensor_add(a, b);
-    double *cdata = tensor_get_data(c);
+    Tensor *c = add(a, b);
+    double *cdata = (double*) get_data(c);
 
     assert(*cdata == 7.0);
 
-    tensor_free(a);
-    tensor_free(b);
-    tensor_free(c);
-
-    free(val1);
-    free(val2);
+    free_tensor(a, true);
+    free_tensor(b, true);
+    free_tensor(c, true);
 
     printf("test_tensor_add_scalar passed!\n");
 }
@@ -43,12 +40,10 @@ void test_tensor_add_scalar() {
 void test_tensor_double_free() {
     double* val = malloc(sizeof(double));
     *val = 99.0;
-    Tensor *t = tensor_create(val, true, DOUBLE);
-    tensor_free(t);
-    tensor_free(t); // should do nothing / not crash if free sets pointers to NULL
+    Tensor *t = tensor_scalar(val, true, DOUBLE);
+    free_tensor(t, true);
+    free_tensor(t, true); // should do nothing / not crash if free sets pointers to NULL
     printf("test_tensor_double_free passed!\n");
-
-    free(val);
 }
 
 int main(void) {
